@@ -88,13 +88,13 @@
         vertical-align: top;
         cursor: pointer;
       }
-      #提示文字 {
+      #tooltip {
         font-size: 1.4em;
         text-align: center;
         color: #999;
         padding: 3em 0 5em;
       }
-      #鼠标 {
+      #mouse {
         background: url(./mouse.svg) no-repeat;
         width: 25px;
         height: 40px;
@@ -105,7 +105,7 @@
         pointer-events: none;
         transition: top 1s ease, left 1s ease;
       }
-      #鼠标 b {
+      #mouse b {
         content: "";
         position: absolute;
         top: -25px;
@@ -117,7 +117,7 @@
         height: 50px;
         opacity: 0;
       }
-      #鼠标.左键点击 b {
+      #mouse.leftClick b {
         animation: scale 1s ease;
       }
       @keyframes scale {
@@ -133,7 +133,7 @@
           opacity: 0;
         }
       }
-      #停一停 {
+      #stopBtn {
         display: block;
         margin: 0 auto;
         background: 0 0;
@@ -141,7 +141,7 @@
         border: 0;
         cursor: pointer;
       }
-      #输出结果 {
+      #output {
         background: #f8f8f8;
         padding: 1em;
         margin: 2em auto;
@@ -149,17 +149,17 @@
         border-radius: 4px;
         transition: opacity 0.5s ease;
       }
-      #输出结果:empty {
+      #output:empty {
         opacity: 0;
       }
-      #输出结果 h3,
-      #输出结果 p {
+      #output h3,
+      #output p {
         margin: 0;
       }
-      #输出结果 h3 {
+      #output h3 {
         padding-bottom: 10px;
       }
-      #输出结果 a {
+      #output a {
         color: #0076ff;
         font-size: 12px;
         display: inline-block;
@@ -184,7 +184,7 @@
   <body>
     <base target="_blank" />
     <h1>不会百度么？</h1>
-    <form id="搜索框">
+    <form id="search">
       <input
         name="text"
         type="search"
@@ -193,12 +193,12 @@
       />
       <button>百度一下</button>
     </form>
-    <p id="提示文字">输入搜索关键字</p>
-    <div id="鼠标">
+    <p id="tooltip">输入搜索关键字</p>
+    <div id="mouse">
       <b> </b>
     </div>
-    <button id="停一停">停一停、停一停！我是自己人，我要生成链接</button>
-    <div id="输出结果"></div>
+    <button id="stopBtn">停一停、停一停！我是自己人，我要生成链接</button>
+    <div id="output"></div>
   </body>
   <script>
     !(function () {
@@ -222,32 +222,32 @@
           i();
         },
         a = function (t, n) {
-          鼠标.style.cssText = "top:" + t + "px;left:" + n + "px;";
+          mouse.style.cssText = `top:${t}px;left:${n}px;`;
         },
         f = function (t) {
-          提示文字.innerHTML = t;
+          tooltip.innerHTML = t;
         },
         u = function (t, n) {
           s = setTimeout(t, n);
         },
-        r = 搜索框.text,
+        r = search.text,
         l = function (t) {
           clearTimeout(s),
             (r.value = ""),
             r.blur(),
-            history.pushState({}, t, location.pathname + "?s=" + n(t)),
+            history.pushState({}, t, `${location.pathname}?s=${n(t)}`),
             a(
-              搜索框.offsetTop + 25,
-              搜索框.offsetLeft + 搜索框.offsetWidth / 2
+              search.offsetTop + 25,
+              search.offsetLeft + search.offsetWidth / 2
             ),
             f("光标移至输入框，左键单击"),
             u(function () {
-              鼠标.classList.add("左键点击"),
+              mouse.classList.add("leftClick"),
                 u(function () {
                   r.focus(),
                     f("键入搜索关键字"),
                     u(function () {
-                      鼠标.classList.remove("左键点击"),
+                      mouse.classList.remove("leftClick"),
                         c(
                           t.split(""),
                           function (n, o) {
@@ -258,16 +258,17 @@
                           },
                           function () {
                             a(
-                              搜索框.offsetTop + 25,
-                              搜索框.offsetLeft + 搜索框.offsetWidth - 60
+                              search.offsetTop + 25,
+                              search.offsetLeft + search.offsetWidth - 60
                             ),
                               f("点击「百度一下」按钮，进行搜索"),
                               u(function () {
-                                鼠标.classList.add("左键点击"),
+                                mouse.classList.add("leftClick"),
                                   f("等待跳转到搜索结果页..."),
                                   u(function () {
-                                    location.href =
-                                      "https://www.baidu.com/s?wd=" + n(t);
+                                    location.href = `https://www.baidu.com/s?wd=${n(
+                                      t
+                                    )}`;
                                   }, 700);
                               }, 1200);
                           }
@@ -276,26 +277,21 @@
                 }, 100);
             }, 1100);
         };
-      (搜索框.onsubmit = function (t) {
-        t.preventDefault();
+      (search.onsubmit = function (e) {
+        e.preventDefault();
         var n = r.value.replace(/^\s+|\s+$/g, "");
         if (!n) return r.focus(), void f("请正确输入搜索关键词");
         l(n);
       }),
-        (停一停.onclick = function () {
+        (stopBtn.onclick = function () {
           clearTimeout(s),
-            (停一停.innerHTML = "在输入框输入关键字，再来点我"),
+            (stopBtn.innerHTML = "在输入框输入关键字，再来点我"),
             a(20, 20);
           var t = r.value.replace(/^\s+|\s+$/g, "");
           if (!t) return r.focus(), void f("请正确输入搜索关键词");
           history.pushState({}, "不会百度么？", "");
-          var o = location.origin + location.pathname + "?s=" + n(t);
-          输出结果.innerHTML =
-            '<h3>生成链接</h3><p>通用地址：<a href="' +
-            o +
-            '">' +
-            o +
-            "</a></p>";
+          var o = `${location.origin}${location.pathname}?s=${n(t)}`;
+          output.innerHTML = `<h3>生成链接</h3><p>通用地址：<a href="${o}">${o}</a></p>`;
         }),
         i.s &&
           u(function () {
