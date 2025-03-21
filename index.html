@@ -3,10 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=600,user-scalable=no" />
-    <meta
-      name="keywords"
-      content="不会百度么,你不会百度么,不会自己找嘛,到底咋整啊,大佬帮帮我啊,你到底会不会啊"
-    />
+    <meta name="keywords" content="不会百度么,你不会百度么,不会自己找嘛,到底咋整啊,大佬帮帮我啊,你到底会不会啊" />
     <meta name="referrer" content="no-referrer" />
     <title>不会百度么？</title>
     <style>
@@ -32,7 +29,7 @@
         position: relative;
       }
       h1:after {
-        content: "";
+        content: '';
         position: absolute;
         left: 0;
         height: 120px;
@@ -106,7 +103,7 @@
         transition: top 1s ease, left 1s ease;
       }
       #mouse b {
-        content: "";
+        content: '';
         position: absolute;
         top: -25px;
         left: -25px;
@@ -164,9 +161,6 @@
         font-size: 12px;
         display: inline-block;
         max-width: 500px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
       footer {
         padding: 7em 0 4em;
@@ -185,12 +179,7 @@
     <base target="_blank" />
     <h1>不会百度么？</h1>
     <form id="search">
-      <input
-        name="text"
-        type="search"
-        placeholder="输入关键字，回车搜索"
-        autocomplete="off"
-      />
+      <input name="text" type="search" placeholder="输入关键字，回车搜索" autocomplete="off" />
       <button>百度一下</button>
     </form>
     <p id="tooltip">输入搜索关键字</p>
@@ -202,101 +191,127 @@
   </body>
   <script>
     !(function () {
-      for (
-        var t,
-          n = encodeURIComponent,
-          o = location.search.substr(1).split("&"),
-          e = o.length,
-          i = {};
-        e--;
+      // 解析URL查询参数
+      const queryParams = {}
+      const queryString = location.search.substr(1).split('&')
+      for (let i = queryString.length; i--; ) {
+        const [key, ...values] = queryString[i].split('=')
+        queryParams[key] = decodeURIComponent(values.join('='))
+      }
 
-      )
-        (t = o[e].split("=")), (i[t.shift()] = decodeURIComponent(t.join("=")));
-      i.ss;
-      var s,
-        c = function (t, n, o) {
-          var e = -1,
-            i = function () {
-              e++, (item = t[e]), item ? n.call(e, item, i) : o && o();
-            };
-          i();
-        },
-        a = function (t, n) {
-          mouse.style.cssText = `top:${t}px;left:${n}px;`;
-        },
-        f = function (t) {
-          tooltip.innerHTML = t;
-        },
-        u = function (t, n) {
-          s = setTimeout(t, n);
-        },
-        r = search.text,
-        l = function (t) {
-          clearTimeout(s),
-            (r.value = ""),
-            r.blur(),
-            history.pushState({}, t, `${location.pathname}?s=${n(t)}`),
-            a(
-              search.offsetTop + 25,
-              search.offsetLeft + search.offsetWidth / 2
-            ),
-            f("光标移至输入框，左键单击"),
-            u(function () {
-              mouse.classList.add("leftClick"),
-                u(function () {
-                  r.focus(),
-                    f("键入搜索关键字"),
-                    u(function () {
-                      mouse.classList.remove("leftClick"),
-                        c(
-                          t.split(""),
-                          function (n, o) {
-                            var e = this + 1;
-                            (r.value = t.substr(0, e)),
-                              (r.selectionStart = r.selectionEnd = e),
-                              u(o, 50 + 250 * Math.random());
-                          },
-                          function () {
-                            a(
-                              search.offsetTop + 25,
-                              search.offsetLeft + search.offsetWidth - 60
-                            ),
-                              f("点击「百度一下」按钮，进行搜索"),
-                              u(function () {
-                                mouse.classList.add("leftClick"),
-                                  f("等待跳转到搜索结果页..."),
-                                  u(function () {
-                                    location.href = `https://www.baidu.com/s?wd=${n(
-                                      t
-                                    )}`;
-                                  }, 700);
-                              }, 1200);
-                          }
-                        );
-                    }, 800);
-                }, 100);
-            }, 1100);
-        };
-      (search.onsubmit = function (e) {
-        e.preventDefault();
-        var n = r.value.replace(/^\s+|\s+$/g, "");
-        if (!n) return r.focus(), void f("请正确输入搜索关键词");
-        l(n);
-      }),
-        (stopBtn.onclick = function () {
-          clearTimeout(s),
-            (stopBtn.innerHTML = "在输入框输入关键字，再来点我"),
-            a(20, 20);
-          var t = r.value.replace(/^\s+|\s+$/g, "");
-          if (!t) return r.focus(), void f("请正确输入搜索关键词");
-          history.pushState({}, "不会百度么？", "");
-          var o = `${location.origin}${location.pathname}?s=${n(t)}`;
-          output.innerHTML = `<h3>生成链接</h3><p>通用地址：<a href="${o}">${o}</a></p>`;
-        }),
-        i.s &&
-          u(function () {
-            l(i.s);
-          }, 1e3);
-    })();
+      // 工具函数定义
+      let timeoutId
+      const encode = encodeURIComponent
+      const setMousePosition = (top, left) => {
+        mouse.style.cssText = `top:${top}px;left:${left}px;`
+      }
+      const updateTooltip = message => {
+        tooltip.innerHTML = message
+      }
+      const scheduleTimeout = (callback, delay) => {
+        timeoutId = setTimeout(callback, delay)
+      }
+
+      // 核心搜索处理逻辑
+      const searchInput = document.querySelector('#search input[name="text"]')
+
+      const performGuidedSearch = searchTerm => {
+        clearTimeout(timeoutId)
+        searchInput.value = ''
+        searchInput.blur()
+
+        // 更新浏览器历史记录
+        history.pushState({}, searchTerm, `${location.pathname}?s=${encode(searchTerm)}`)
+
+        // 分步引导动画
+        setMousePosition(search.offsetTop + 25, search.offsetLeft + search.offsetWidth / 2)
+        updateTooltip('光标移至输入框，左键单击')
+
+        // 完整的引导流程
+        scheduleTimeout(() => {
+          mouse.classList.add('leftClick')
+          scheduleTimeout(() => {
+            searchInput.focus()
+            updateTooltip('键入搜索关键字')
+
+            scheduleTimeout(() => {
+              mouse.classList.remove('leftClick')
+
+              // 模拟逐字输入效果
+              const inputCharacters = searchTerm.split('')
+              processStepByStepInput(inputCharacters, () => {
+                // 输入完成后跳转
+                setMousePosition(search.offsetTop + 25, search.offsetLeft + search.offsetWidth - 60)
+                updateTooltip('点击「百度一下」按钮，进行搜索')
+
+                scheduleTimeout(() => {
+                  mouse.classList.add('leftClick')
+                  updateTooltip('等待跳转到搜索结果页...')
+
+                  scheduleTimeout(() => {
+                    location.href = `https://www.baidu.com/s?wd=${encode(searchTerm)}`
+                  }, 700)
+                }, 1200)
+              })
+            }, 800)
+          }, 100)
+        }, 1100)
+      }
+
+      // 分步输入处理器
+      const processStepByStepInput = (characters, onComplete) => {
+        let currentIndex = -1
+
+        const nextStep = () => {
+          currentIndex++
+          if (!characters[currentIndex]) {
+            onComplete && onComplete()
+            return
+          }
+
+          searchInput.value = characters.slice(0, currentIndex + 1).join('')
+          searchInput.setSelectionRange(currentIndex + 1, currentIndex + 1)
+
+          scheduleTimeout(nextStep, 50 + 250 * Math.random())
+        }
+
+        nextStep()
+      }
+
+      // 事件绑定
+      document.getElementById('search').onsubmit = function (e) {
+        e.preventDefault()
+        const cleanedInput = searchInput.value.trim()
+        if (!cleanedInput) {
+          searchInput.focus()
+          return updateTooltip('请正确输入搜索关键词')
+        }
+        performGuidedSearch(cleanedInput)
+      }
+
+      document.getElementById('stopBtn').onclick = function () {
+        clearTimeout(timeoutId)
+        this.innerHTML = '在输入框输入关键字，再来点我'
+        setMousePosition(20, 20)
+
+        const searchTerm = searchInput.value.trim()
+        if (!searchTerm) {
+          searchInput.focus()
+          return updateTooltip('请正确输入搜索关键词')
+        }
+
+        history.pushState({}, '不会百度么？', '')
+        const shareableLink = `${location.origin}${location.pathname}?s=${encode(searchTerm)}`
+        document.getElementById('output').innerHTML = `
+      <h3>生成链接</h3>
+      <p>通用地址：<a href="${shareableLink}">${shareableLink}</a></p>
+    `
+      }
+
+      // 初始化自动搜索
+      if (queryParams.s) {
+        scheduleTimeout(() => performGuidedSearch(queryParams.s), 1000)
+      }
+    })()
   </script>
 </html>
